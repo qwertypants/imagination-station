@@ -29,6 +29,36 @@ export const cards = [
     description: "The king of the jungle",
     tags: ["Predator", "Africa"],
   },
+  {
+    image: "https://placekitten.com/400/300",
+    animal: "Lion",
+    description: "The king of the jungle",
+    tags: ["Predator", "Africa"],
+  },
+  {
+    image: "https://placekitten.com/400/300",
+    animal: "Elephant",
+    description: "Largest land animal",
+    tags: ["Herbivore", "Africa", "Asia"],
+  },
+  {
+    image: "https://placekitten.com/400/300",
+    animal: "Lion",
+    description: "The king of the jungle",
+    tags: ["Predator", "Africa"],
+  },
+  {
+    image: "https://placekitten.com/400/300",
+    animal: "Lion",
+    description: "The king of the jungle",
+    tags: ["Predator", "Africa"],
+  },
+  {
+    image: "https://placekitten.com/400/300",
+    animal: "Lion",
+    description: "The king of the jungle",
+    tags: ["Predator", "Africa"],
+  },
   // Add more card data here...
 ];
 

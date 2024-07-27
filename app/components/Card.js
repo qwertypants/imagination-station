@@ -1,8 +1,8 @@
 const Card = ({ image, description, tags }) => (
-  <div className="rounded-lg shadow-md overflow-hidden mb-2">
+  <div className="mb-4 w-full overflow-hidden rounded-lg shadow-md">
     <img src={image} alt={description} className="w-full object-cover" />
     <div className="p-4">
-      <p className="text-gray-700 mb-2">{description}</p>
+      <p className="mb-2 text-gray-700">{description}</p>
       <div className="flex flex-wrap gap-2">
         {tags.map((tag, index) => (
           <span

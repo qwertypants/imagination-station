@@ -4,6 +4,10 @@ import { useChat } from "ai/react";
 import React, { useState, useEffect } from "react";
 import Card from "@/app/components/Card";
 import { cards, myMessages } from "@/app/consts";
+import { generate } from "random-words";
+
+const maxSelectedWords = 10;
+const maxGeneratedWords = 5;
 
 async function getImage(messages) {
   const res = fetch("/api/image", {
@@ -18,25 +22,31 @@ async function getImage(messages) {
 
 export default function Page() {
   const [gallery, setGallery] = useState([]);
-  const [words, setWords] = useState(["hi", "hello", "hey"]);
+  const [randomWords, setRandomWords] = useState([""]);
+
+  function generateWords() {
+    const words = generate(maxGeneratedWords);
+    setRandomWords(words);
+  }
 
   useEffect(() => {
     const localGallery = localStorage.getItem("gallery");
     if (localGallery) {
       setGallery(JSON.parse(localGallery));
     }
+    generateWords();
   }, []);
 
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
+  const { messages, input, handleSubmit, setInput } = useChat({
     onFinish: async (messages) => {
       // const image = await getImage(messages.content);
       // setGallery([...gallery, image.url]);
     },
   });
-
+  // console.log(input);
   return (
-    <section className="container mx-auto p-4 max-w-5xl">
-      <div className="bg-slate-200 h-[25vh] overflow-y-scroll relative">
+    <section className="container mx-auto max-w-5xl">
+      <div className="mt-10 h-[25vh] overflow-y-scroll">
         {/*{messages.map((message) => (*/}
         {/*  <div key={message.id}>*/}
         {/*    {message.role === "user" ? "User: " : "AI: "}*/}
@@ -48,48 +58,49 @@ export default function Page() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-yellow-50 w-full">
-        <input name="prompt" value={input} onChange={handleInputChange} />
+      <form onSubmit={handleSubmit} className="w-full py-4">
         <button type="submit">Submit</button>
       </form>
 
-      <div className="w-full columns-2 py-10">
-        <div className="flex gap-2">
-          {words.map((word, index) => (
+      <div className="w-full columns-2">
+        <div className="flex gap-2 py-4">
+          <button type="button" onClick={generateWords} className="text-3xl">
+            🔀
+          </button>
+          {randomWords.map((word, index) => (
             <button
               key={index}
               type="button"
-              className="rounded px-2 py-1 text-xs font-semibold bg-slate-200 shadow-sm"
+              onClick={() => setInput(input.concat(`${word} `))}
+              disabled={
+                input.includes(word) ||
+                input.split(" ").length - 1 >= maxSelectedWords
+              }
+              className="rounded bg-slate-200 px-2 py-1 font-semibold shadow-sm disabled:opacity-50"
             >
               {word}
             </button>
           ))}
         </div>
-        <div className="flex gap-2 my-10">
-          <button
-            type="button"
-            className="rounded px-2 py-1 text-xs font-semibold bg-slate-200 shadow-sm"
-          >
-            refresh words
+        <div className="flex gap-2 py-4">
+          <button type="button" className="text-3xl">
+            ▶️
           </button>
-          <button
-            type="button"
-            className="rounded px-2 py-1 text-xs font-semibold bg-slate-200 shadow-sm"
-          >
-            submit
-          </button>
+          <p className="flex items-center">{input}</p>
         </div>
       </div>
 
-      <div className="h-[60vh] bg-red-50 overflow-y-scroll columns-1 sm:columns-2 md:columns-3 gap-2">
-        {cards.map((card, index) => (
-          <Card
-            key={index}
-            image={card.image}
-            description={card.description}
-            tags={card.tags}
-          />
-        ))}
+      <div className="h-[60vh] overflow-y-scroll">
+        <div className="columns-3">
+          {cards.map((card, index) => (
+            <Card
+              key={index}
+              image={card.image}
+              description={card.description}
+              tags={card.tags}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
