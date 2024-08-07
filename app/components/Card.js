@@ -1,8 +1,8 @@
-const Card = ({ image, description, tags }) => (
+const Card = ({ image, content, tags }) => (
   <div className="mb-4 w-full overflow-hidden rounded-lg shadow-md">
-    <img src={image} alt={description} className="w-full object-cover" />
+    <img src={image} alt={content} className="w-full object-cover" />
     <div className="p-4">
-      <p className="mb-2 text-gray-700">{description}</p>
+      <p className="mb-2 text-gray-700">{content}</p>
       <div className="flex flex-wrap gap-2">
         {tags.map((tag, index) => (
           <span

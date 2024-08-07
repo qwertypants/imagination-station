@@ -6,8 +6,9 @@ import Card from "@/app/components/Card";
 import { cards, myMessages } from "@/app/consts";
 import { generate } from "random-words";
 
-const maxSelectedWords = 10;
-const maxGeneratedWords = 5;
+const minSelectedWords = 1;
+const maxSelectedWords = 3;
+const generatedWords = 5;
 
 async function getImage(messages) {
   const res = fetch("/api/image", {
@@ -25,46 +26,62 @@ export default function Page() {
   const [randomWords, setRandomWords] = useState([""]);
 
   function generateWords() {
-    const words = generate(maxGeneratedWords);
+    const words = generate(generatedWords);
     setRandomWords(words);
+  }
+
+  async function handleFinish(messages) {
+    const { content } = messages;
+    // const image = await getImage(content)
+    const newCard = {
+      content,
+      // image,
+      tags: input.split(" "),
+    };
+    const newGallery = [...gallery, { ...newCard }];
+    localStorage.setItem("gallery", JSON.stringify(newGallery));
+    generateWords();
+    setInput("");
+    setGallery(newGallery);
   }
 
   useEffect(() => {
     const localGallery = localStorage.getItem("gallery");
+
     if (localGallery) {
+      // console.log(JSON.parse(localGallery));
+      console.log(localGallery);
       setGallery(JSON.parse(localGallery));
+    } else {
+      localStorage.setItem("gallery", JSON.stringify(cards));
     }
     generateWords();
   }, []);
 
   const { messages, input, handleSubmit, setInput } = useChat({
-    onFinish: async (messages) => {
-      // const image = await getImage(messages.content);
-      // setGallery([...gallery, image.url]);
-    },
+    onFinish: async (messages) => await handleFinish(messages),
   });
-  // console.log(input);
+
   return (
-    <section className="container mx-auto max-w-5xl">
+    <section className="container mx-auto max-w-5xl px-4">
+      <h1>words ➡️ image</h1>
       <div className="mt-10 h-[25vh] overflow-y-scroll">
-        {/*{messages.map((message) => (*/}
-        {/*  <div key={message.id}>*/}
-        {/*    {message.role === "user" ? "User: " : "AI: "}*/}
-        {/*    {message.content}*/}
-        {/*  </div>*/}
-        {/*))}*/}
-        {myMessages.map((message, index) => (
-          <p key={index}>{message}</p>
+        {messages.map((message) => (
+          <p key={message.id}>
+            {message.role === "user" ? "User: " : "AI: "}
+            {message.content}
+          </p>
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="w-full py-4">
-        <button type="submit">Submit</button>
-      </form>
-
-      <div className="w-full columns-2">
+      <div className="w-full columns-1 gap-2 lg:columns-2">
         <div className="flex gap-2 py-4">
-          <button type="button" onClick={generateWords} className="text-3xl">
+          <button
+            type="button"
+            onClick={generateWords}
+            className="text-3xl disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={input.split(" ").length - 1 >= maxSelectedWords}
+          >
             🔀
           </button>
           {randomWords.map((word, index) => (
@@ -76,27 +93,31 @@ export default function Page() {
                 input.includes(word) ||
                 input.split(" ").length - 1 >= maxSelectedWords
               }
-              className="rounded bg-slate-200 px-2 py-1 font-semibold shadow-sm disabled:opacity-50"
+              className="rounded bg-slate-200 px-2 py-1 font-semibold shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
             >
               {word}
             </button>
           ))}
         </div>
         <div className="flex gap-2 py-4">
-          <button type="button" className="text-3xl">
+          <button
+            type="button"
+            className="text-3xl disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={input.split(" ").length - 1 < minSelectedWords}
+            onClick={handleSubmit}
+          >
             ▶️
           </button>
           <p className="flex items-center">{input}</p>
         </div>
       </div>
-
       <div className="h-[60vh] overflow-y-scroll">
         <div className="columns-3">
-          {cards.map((card, index) => (
+          {gallery.map((card, index) => (
             <Card
               key={index}
               image={card.image}
-              description={card.description}
+              content={card.description}
               tags={card.tags}
             />
           ))}
