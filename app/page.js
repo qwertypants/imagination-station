@@ -1,10 +1,7 @@
 "use client";
-import { useFormStatus } from "react-dom";
 
 import { useChat } from "ai/react";
-import React, { useState, useEffect } from "react";
-import Card from "@/app/components/Card";
-import { cards } from "@/app/consts";
+import { useEffect, useState } from "react";
 
 import { generate } from "random-words";
 
@@ -26,7 +23,6 @@ async function getImage(prompt) {
 export default function Page() {
   const [gallery, setGallery] = useState([]);
   const [randomWords, setRandomWords] = useState([""]);
-  const { pending } = useFormStatus();
 
   function generateWords() {
     const words = generate(generatedWords);
@@ -36,13 +32,15 @@ export default function Page() {
   async function handleFinish(messages) {
     const { content } = messages;
     const image = await getImage(content);
-    const newCard = {
+    const card = {
+      date: new Date().toISOString(),
       content,
       image,
       tags: input.split(" ").filter((el) => el !== ""),
     };
-    const newGallery = [...gallery, { ...newCard }];
+    const newGallery = [...gallery, { ...card }];
     localStorage.setItem("gallery", JSON.stringify(newGallery));
+
     generateWords();
     setInput("");
     setGallery(newGallery);
@@ -54,73 +52,96 @@ export default function Page() {
     if (localGallery) {
       setGallery(JSON.parse(localGallery));
     } else {
-      // Sample set
-      localStorage.setItem("gallery", JSON.stringify(cards));
+      // localStorage.setItem("gallery", JSON.stringify(cards)); // Sample set
     }
     generateWords();
   }, []);
 
-  const { messages, input, handleSubmit, setInput } = useChat({
+  const { messages, input, handleSubmit, setInput, isLoading } = useChat({
     onFinish: async (messages) => await handleFinish(messages),
   });
 
   return (
-    <section className="container mx-auto max-w-5xl px-4">
-      <h1>words ➡️ image</h1>
-      <div className="mt-10 h-[25vh] overflow-y-scroll">
-        {messages.map((message) => (
-          <p key={message.id}>
-            {message.role === "user" ? "words: " : "prompt: "}
-            {message.content}
-          </p>
-        ))}
-      </div>
-
-      <div className="w-full columns-1 gap-2 lg:columns-2">
-        <div className="flex flex-wrap gap-2 py-4">
-          <button
-            type="button"
-            onClick={generateWords}
-            className="text-3xl disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={
-              input.split(" ").length - 1 >= maxSelectedWords || pending
-            }
-          >
-            🔀
-          </button>
-          {randomWords.map((word, index) => (
+    <section className="container mx-auto max-w-7xl p-4">
+      <h1 className={`${isLoading ? "animate-pulse" : ""}`}>words ➡️ image</h1>
+      <div className="flex">
+        <div className="w-1/3">
+          <div className="flex flex-wrap gap-2 py-2">
             <button
-              key={index}
               type="button"
-              onClick={() => setInput(input.concat(`${word} `))}
+              onClick={generateWords}
+              className="text-3xl disabled:cursor-not-allowed disabled:opacity-50"
               disabled={
-                input.includes(word) ||
-                input.split(" ").length - 1 >= maxSelectedWords
+                input.split(" ").length - 1 >= maxSelectedWords || isLoading
               }
-              className="rounded bg-slate-200 px-2 py-1 font-semibold shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {word}
+              🔀
             </button>
+            {randomWords.map((word, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setInput(input.concat(`${word} `))}
+                disabled={
+                  input.includes(word) ||
+                  input.split(" ").length - 1 >= maxSelectedWords ||
+                  isLoading
+                }
+                className="rounded bg-slate-200 px-2 py-1 font-semibold shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {word}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2 py-4">
+            <button
+              type="button"
+              className="text-3xl disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={
+                input.split(" ").length - 1 < minSelectedWords || isLoading
+              }
+              onClick={handleSubmit}
+            >
+              ▶️
+            </button>
+            <p className="flex items-center">{input}</p>
+          </div>
+          {messages.map((message) => (
+            <p key={message.id}>
+              {message.role === "user" ? "words: " : "prompt: "}
+              {message.content}
+            </p>
           ))}
         </div>
-        <div className="flex gap-2 py-4">
-          <button
-            type="button"
-            className="text-3xl disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={input.split(" ").length - 1 < minSelectedWords}
-            onClick={handleSubmit}
-          >
-            ▶️
-          </button>
-          <p className="flex items-center">{input}</p>
-        </div>
-      </div>
-
-      <div className="h-[60vh] overflow-y-scroll">
-        <div className="columns-3">
-          {gallery.map((card, index) => (
-            <Card key={index} {...card} />
-          ))}
+        <div className="h-[95vh] w-2/3 overflow-y-scroll">
+          {gallery.map((card, index) => {
+            const { image, content, tags } = card;
+            return (
+              <div
+                key={index}
+                className="mb-4 w-full overflow-hidden rounded-lg shadow-md"
+              >
+                <img
+                  src={image}
+                  alt={content}
+                  className="w-full object-cover"
+                />
+                <div className="px-4">
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mb-2 py-2 text-gray-700">{content}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
