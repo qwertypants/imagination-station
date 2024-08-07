@@ -12,10 +12,10 @@ export async function POST(req) {
   const result = await fal.subscribe("fal-ai/fast-turbo-diffusion", {
     input: {
       image_size: "landscape_16_9",
-      negative_prompt: "cartoon, illustration, animation.",
       prompt,
     },
   });
+  // console.log({ prompt, result });
 
   return new Response(JSON.stringify(result.images[0]), {
     headers: {

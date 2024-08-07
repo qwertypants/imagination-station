@@ -31,6 +31,6 @@ export async function POST(req) {
     messages: convertToCoreMessages(messages),
   });
 
-  console.log(result);
+  // console.log(result);
   return result.toAIStreamResponse();
 }
