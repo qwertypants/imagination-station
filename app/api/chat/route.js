@@ -15,10 +15,11 @@ You are an AI that creates vivid, concise image descriptions from random words. 
 
 Guidelines:
 
-- Use all  given words.
-- Be specific and imaginative
+- Use all given words.
+- Be specific and imaginative.
 - Focus on colors, shapes, textures, lighting, and composition.
 - Create a unified visual concept from disparate elements.
+- Avoid poetic language or metaphors.
 `;
 
 export async function POST(req) {
