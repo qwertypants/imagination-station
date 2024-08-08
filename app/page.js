@@ -64,8 +64,8 @@ export default function Page() {
   return (
     <section className="container mx-auto max-w-7xl p-4">
       <h1 className={`${isLoading ? "animate-pulse" : ""}`}>words ➡️ image</h1>
-      <div className="flex">
-        <div className="w-1/3">
+      <div className="flex flex-col md:flex-row">
+        <div className="w-full md:w-1/3">
           <div className="flex flex-wrap gap-2 py-2">
             <button
               type="button"
@@ -117,7 +117,7 @@ export default function Page() {
             ))}
           </div>
         </div>
-        <div className="h-[95vh] w-2/3 overflow-y-scroll p-2">
+        <div className="h-[95vh] w-full overflow-y-scroll p-2 md:w-2/3">
           {gallery
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .map((card, index) => {
