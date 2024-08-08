@@ -7,7 +7,7 @@ import { generate } from "random-words";
 
 const minSelectedWords = 4;
 const maxSelectedWords = 8;
-const generatedWords = 10;
+const generatedWords = 12;
 
 async function getImage(prompt) {
   const res = await fetch("/api/image", {
@@ -87,13 +87,13 @@ export default function Page() {
                   input.split(" ").length - 1 >= maxSelectedWords ||
                   isLoading
                 }
-                className="rounded bg-slate-200 px-2 py-1 font-semibold shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded bg-slate-200 px-2 py-1 font-semibold shadow-sm shadow-black hover:shadow-red-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {word}
               </button>
             ))}
           </div>
-          <div className="flex gap-2 py-4">
+          <div className="flex gap-2 py-2">
             <button
               type="button"
               className="text-3xl disabled:cursor-not-allowed disabled:opacity-50"
@@ -106,42 +106,48 @@ export default function Page() {
             </button>
             <p className="flex items-center">{input}</p>
           </div>
-          {messages.map((message) => (
-            <p key={message.id}>
-              {message.role === "user" ? "words: " : "prompt: "}
-              {message.content}
-            </p>
-          ))}
-        </div>
-        <div className="h-[95vh] w-2/3 overflow-y-scroll">
-          {gallery.map((card, index) => {
-            const { image, content, tags } = card;
-            return (
-              <div
-                key={index}
-                className="mb-4 w-full overflow-hidden rounded-lg shadow-md"
+          <div className="h-3/4 overflow-y-scroll rounded-md bg-gray-50 p-2 text-sm">
+            {messages.map((message) => (
+              <p
+                key={message.id}
+                className={`${message.role === "user" ? "text-gray-400" : "text-gray-700"}`}
               >
-                <img
-                  src={image}
-                  alt={content}
-                  className="w-full object-cover"
-                />
-                <div className="px-4">
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                {message.content}
+              </p>
+            ))}
+          </div>
+        </div>
+        <div className="h-[95vh] w-2/3 overflow-y-scroll p-2">
+          {gallery
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .map((card, index) => {
+              const { image, content, tags } = card;
+              return (
+                <div
+                  key={index}
+                  className="mb-4 w-full overflow-hidden rounded-md shadow-sm shadow-red-900"
+                >
+                  <img
+                    src={image}
+                    alt={content}
+                    className="w-full object-cover"
+                  />
+                  <div className="px-4">
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center rounded-md bg-gray-100 bg-gradient-to-r from-amber-50 to-red-50 px-2 py-1 text-xs font-medium text-gray-600"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="mb-2 py-2 text-gray-700">{content}</p>
                   </div>
-                  <p className="mb-2 py-2 text-gray-700">{content}</p>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
     </section>
