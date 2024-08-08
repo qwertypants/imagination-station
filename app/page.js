@@ -64,9 +64,8 @@ export default function Page() {
   return (
     <section className="container mx-auto max-w-7xl p-4 dark:bg-gray-800 dark:text-white">
       <h1 className={`mb-2 text-sm ${isLoading ? "animate-pulse" : ""}`}>
-        Select {minSelectedWords} to {maxSelectedWords} words
-        <br />
-        🔀 new words ▶️ generate prompt & image
+        Select {minSelectedWords} to {maxSelectedWords} words <br /> 🔀 new
+        words ▶️ generate prompt & image
       </h1>
       <div className="flex flex-col md:flex-row">
         <div className="w-full md:w-1/3">
@@ -131,25 +130,27 @@ export default function Page() {
                   key={index}
                   className="mb-4 w-full overflow-hidden rounded-md shadow-sm shadow-red-900 dark:bg-black dark:shadow-red-800"
                 >
-                  <img
-                    src={image}
-                    alt={content}
-                    className="w-full object-cover"
-                  />
-                  <div className="px-4">
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center bg-gradient-to-b from-gray-50 to-red-50 px-2 py-1 text-xs font-medium text-gray-600"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <p className="mb-2 py-2 text-gray-700 dark:text-white">
+                  <picture>
+                    <source srcSet={image} type="image/webp" />
+                    <img
+                      src={image}
+                      alt={content}
+                      className="w-full object-cover"
+                    />
+                    <figcaption className="p-2 text-sm text-gray-500 dark:text-gray-400">
                       {content}
-                    </p>
+                    </figcaption>
+                  </picture>
+
+                  <div className="flex flex-wrap gap-2 p-2">
+                    {tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center bg-gradient-to-b from-gray-50 to-red-50 px-2 py-1 text-xs font-medium text-gray-600"
+                      >
+                        {tag}
+                      </span>
+                    ))}
                   </div>
                 </div>
               );
