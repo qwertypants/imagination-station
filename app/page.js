@@ -7,7 +7,7 @@ import { generate } from "random-words";
 
 const minSelectedWords = 4;
 const maxSelectedWords = 8;
-const generatedWords = 12;
+const generatedWords = 16;
 
 async function getImage(prompt) {
   const res = await fetch("/api/image", {
@@ -62,8 +62,12 @@ export default function Page() {
   });
 
   return (
-    <section className="container mx-auto max-w-7xl p-4">
-      <h1 className={`${isLoading ? "animate-pulse" : ""}`}>words ➡️ image</h1>
+    <section className="container mx-auto max-w-7xl p-4 dark:bg-gray-800 dark:text-white">
+      <h1 className={`mb-2 text-sm ${isLoading ? "animate-pulse" : ""}`}>
+        Select {minSelectedWords} to {maxSelectedWords} words
+        <br />
+        🔀 new words ▶️ generate prompt & image
+      </h1>
       <div className="flex flex-col md:flex-row">
         <div className="w-full md:w-1/3">
           <div className="flex flex-wrap gap-2 py-2">
@@ -87,7 +91,7 @@ export default function Page() {
                   input.split(" ").length - 1 >= maxSelectedWords ||
                   isLoading
                 }
-                className="rounded bg-slate-200 px-2 py-1 font-semibold shadow-sm shadow-black hover:shadow-red-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded bg-slate-200 px-2 py-1 font-semibold shadow-sm shadow-black hover:shadow-red-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-black"
               >
                 {word}
               </button>
@@ -106,11 +110,11 @@ export default function Page() {
             </button>
             <p className="flex items-center">{input}</p>
           </div>
-          <div className="h-3/4 overflow-y-scroll rounded-md bg-gray-50 p-2 text-sm">
+          <div className="max-h-3/4 overflow-y-scroll rounded-md bg-gray-50 text-sm dark:bg-gray-900">
             {messages.map((message) => (
               <p
                 key={message.id}
-                className={`${message.role === "user" ? "text-gray-400" : "text-gray-700"}`}
+                className={`p-2 ${message.role === "user" ? "text-gray-400" : "text-gray-700 dark:text-white"}`}
               >
                 {message.content}
               </p>
@@ -125,7 +129,7 @@ export default function Page() {
               return (
                 <div
                   key={index}
-                  className="mb-4 w-full overflow-hidden rounded-md shadow-sm shadow-red-900"
+                  className="mb-4 w-full overflow-hidden rounded-md shadow-sm shadow-red-900 dark:bg-black dark:shadow-red-800"
                 >
                   <img
                     src={image}
@@ -137,13 +141,15 @@ export default function Page() {
                       {tags.map((tag, index) => (
                         <span
                           key={index}
-                          className="inline-flex items-center rounded-md bg-gray-100 bg-gradient-to-r from-amber-50 to-red-50 px-2 py-1 text-xs font-medium text-gray-600"
+                          className="inline-flex items-center bg-gradient-to-b from-gray-50 to-red-50 px-2 py-1 text-xs font-medium text-gray-600"
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <p className="mb-2 py-2 text-gray-700">{content}</p>
+                    <p className="mb-2 py-2 text-gray-700 dark:text-white">
+                      {content}
+                    </p>
                   </div>
                 </div>
               );
