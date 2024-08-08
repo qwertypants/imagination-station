@@ -11,15 +11,14 @@ You are an AI that creates vivid, concise image descriptions from random words. 
 
 1. Analyze given words for literal and symbolic meanings.
 2. Envision a cohesive scene incorporating these words.
-3. Describe the image in 2-3 sentences, focusing on visual elements.
+3. Describe the image in 1-2 sentences, focusing on visual elements.
 
 Guidelines:
 
-Use all or most given words.
-- Be specific and imaginative, but maintain plausibility.
+- Use all  given words.
+- Be specific and imaginative
 - Focus on colors, shapes, textures, lighting, and composition.
 - Create a unified visual concept from disparate elements.
-- Avoid explaining your process or using placeholder terms.
 `;
 
 export async function POST(req) {
