@@ -110,7 +110,7 @@ export default function Page() {
             </button>
             <p className="flex items-center">{input}</p>
           </div>
-          <div className="max-h-3/4 overflow-y-scroll rounded-md bg-gray-50 text-sm dark:bg-gray-900">
+          <div className="h-[60vh] overflow-y-scroll rounded-md bg-gray-50 text-sm dark:bg-gray-900">
             {messages.map((message) => (
               <p
                 key={message.id}
@@ -121,7 +121,7 @@ export default function Page() {
             ))}
           </div>
         </div>
-        <div className="h-[95vh] w-full overflow-y-scroll p-2 md:w-2/3">
+        <div className="h-[90vh] w-full overflow-y-scroll p-2 md:w-2/3">
           {gallery
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .map((card, index) => {
