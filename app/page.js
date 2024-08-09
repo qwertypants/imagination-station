@@ -23,6 +23,7 @@ async function getImage(prompt) {
 export default function Page() {
   const [gallery, setGallery] = useState([]);
   const [randomWords, setRandomWords] = useState([]);
+  const [imageLoading, setImageLoading] = useState(false);
 
   function generateWords() {
     const words = generate(generatedWords);
@@ -31,7 +32,10 @@ export default function Page() {
 
   async function handleFinish(messages) {
     const { content } = messages;
+    setImageLoading(true);
     const image = await getImage(content);
+    setImageLoading(false);
+
     const card = {
       date: new Date().toISOString(),
       content,
@@ -39,6 +43,7 @@ export default function Page() {
       tags: input.split(" ").filter((el) => el !== ""),
     };
     const newGallery = [...gallery, { ...card }];
+
     localStorage.setItem("gallery", JSON.stringify(newGallery));
 
     generateWords();
@@ -62,7 +67,7 @@ export default function Page() {
   });
 
   return (
-    <section className="container mx-auto max-w-7xl p-4">
+    <section className="mx-auto max-w-7xl p-4">
       <h1 className={`mb-2 text-sm ${isLoading ? "animate-pulse" : ""}`}>
         Select {minSelectedWords} to {maxSelectedWords} words <br /> 🔀 new
         words ▶️ generate prompt & image
@@ -99,7 +104,7 @@ export default function Page() {
           <div className="flex gap-2 py-2">
             <button
               type="button"
-              className="text-3xl disabled:cursor-not-allowed disabled:opacity-50"
+              className={`text-3xl disabled:cursor-not-allowed disabled:opacity-50 ${imageLoading ? "animate-spin" : ""}`}
               disabled={
                 input.split(" ").length - 1 < minSelectedWords || isLoading
               }
@@ -109,12 +114,11 @@ export default function Page() {
             </button>
             <p className="flex items-center">{input}</p>
           </div>
-          <div className="h-1/2 overflow-y-scroll rounded-md bg-gray-100 p-2 text-sm dark:bg-gray-900">
-            {/* Only display the last 2 messages */}
+          <div className="min-h-1/2 overflow-y-scroll rounded-md bg-gray-100 text-sm dark:bg-gray-900">
             {messages.slice(-2).map((message) => (
               <p
                 key={message.id}
-                className={`p-2 ${message.role === "user" ? "text-gray-400" : "text-gray-700 dark:text-white"}`}
+                className={`p-4 ${message.role === "user" ? "text-gray-400" : "text-gray-700 dark:text-white"}`}
               >
                 {message.content}
               </p>
@@ -129,7 +133,7 @@ export default function Page() {
               return (
                 <div
                   key={index}
-                  className="mb-4 w-full overflow-hidden rounded-md shadow-sm shadow-red-900 dark:bg-black dark:shadow-red-800"
+                  className="mb-4 w-full overflow-hidden rounded-md shadow-sm shadow-red-900 dark:bg-black"
                 >
                   <picture>
                     <source srcSet={image} type="image/webp" />
@@ -143,11 +147,11 @@ export default function Page() {
                     </figcaption>
                   </picture>
 
-                  <div className="flex flex-wrap gap-2 p-4">
+                  <div className="flex flex-wrap gap-2 p-4 pt-0">
                     {tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center bg-gradient-to-b from-gray-50 to-red-50 px-2 py-1 text-xs font-medium text-gray-600"
+                        className="inline-flex items-center bg-gradient-to-b from-gray-50 to-red-50 px-2 py-1 text-xs font-medium text-gray-600 dark:from-sky-900 dark:to-red-900 dark:text-white"
                       >
                         {tag}
                       </span>
