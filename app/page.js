@@ -22,7 +22,7 @@ async function getImage(prompt) {
 
 export default function Page() {
   const [gallery, setGallery] = useState([]);
-  const [randomWords, setRandomWords] = useState([""]);
+  const [randomWords, setRandomWords] = useState([]);
 
   function generateWords() {
     const words = generate(generatedWords);
@@ -62,7 +62,7 @@ export default function Page() {
   });
 
   return (
-    <section className="container mx-auto max-w-7xl p-4 dark:bg-gray-800 dark:text-white">
+    <section className="container mx-auto max-w-7xl p-4">
       <h1 className={`mb-2 text-sm ${isLoading ? "animate-pulse" : ""}`}>
         Select {minSelectedWords} to {maxSelectedWords} words <br /> 🔀 new
         words ▶️ generate prompt & image
@@ -109,8 +109,9 @@ export default function Page() {
             </button>
             <p className="flex items-center">{input}</p>
           </div>
-          <div className="h-[60vh] overflow-y-scroll rounded-md bg-gray-50 text-sm dark:bg-gray-900">
-            {messages.map((message) => (
+          <div className="h-1/2 overflow-y-scroll rounded-md bg-gray-100 p-2 text-sm dark:bg-gray-900">
+            {/* Only display the last 2 messages */}
+            {messages.slice(-2).map((message) => (
               <p
                 key={message.id}
                 className={`p-2 ${message.role === "user" ? "text-gray-400" : "text-gray-700 dark:text-white"}`}
@@ -137,12 +138,12 @@ export default function Page() {
                       alt={content}
                       className="w-full object-cover"
                     />
-                    <figcaption className="p-2 text-sm text-gray-500 dark:text-gray-400">
+                    <figcaption className="p-4 text-sm text-gray-500 dark:text-gray-400">
                       {content}
                     </figcaption>
                   </picture>
 
-                  <div className="flex flex-wrap gap-2 p-2">
+                  <div className="flex flex-wrap gap-2 p-4">
                     {tags.map((tag, index) => (
                       <span
                         key={index}
