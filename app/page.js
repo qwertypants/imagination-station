@@ -69,8 +69,9 @@ export default function Page() {
   return (
     <section className="mx-auto max-w-7xl p-4">
       <h1 className={`mb-2 text-sm ${isLoading ? "animate-pulse" : ""}`}>
-        Select {minSelectedWords} to {maxSelectedWords} words <br /> 🔀 new
-        words ▶️ generate prompt & image
+        Select {minSelectedWords} to {maxSelectedWords} words and create an
+        image 🖼️
+        <br /> 🔀 new words ▶️ generate prompt & image
       </h1>
       <div className="flex flex-col md:flex-row">
         <div className="w-full md:w-1/3">
