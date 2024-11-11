@@ -3,13 +3,11 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
-import { Copy, Check, Link } from "lucide-react";
-
-import { useSearchParams } from "next/navigation";
+import { Check, Link } from "lucide-react";
+import { Suspense } from "react";
 
 import { useChat } from "ai/react";
 import { useEffect, useState } from "react";
@@ -39,9 +37,6 @@ export default function Page() {
   const [isOpen, setIsOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [singleImage, setSingleImage] = useState(null);
-
-  const searchParams = useSearchParams("i");
-  // console.log(searchParams);
 
   function generateWords() {
     const words = generate(generatedWords);
@@ -83,16 +78,18 @@ export default function Page() {
 
   // Load image from search params
   useEffect(() => {
-    const id = searchParams.get("i");
+    const params = window.location.search;
+    const id = params.split("=")[1];
+
     if (id) {
       const card = decodeURLToObject(id);
-      console.log(card);
+      // console.log(card);
       if (card) {
         setSingleImage(card);
         setIsOpen(true);
       }
     }
-  }, [searchParams]);
+  }, []);
 
   const { messages, input, handleSubmit, setInput, isLoading } = useChat({
     onFinish: async (messages) => await handleFinish(messages),
@@ -109,159 +106,162 @@ export default function Page() {
   function handleShare(card) {
     const shared = encodeObjectToURL(card);
     const t = decodeURLToObject(shared);
-    console.log(shared, t);
+    // console.log(shared, t);
     copyToClipboard(shared);
   }
 
   return (
-    <section className="mx-auto max-w-7xl">
-      <Dialog open={isOpen} onOpenChange={setIsOpen} className="">
-        <DialogContent>
-          <DialogTitle className="text-white">
-            {
-              //   The first two tag elements
-              singleImage?.tags.slice(0, 2).join(" ").toUpperCase()
-            }
-          </DialogTitle>
-          <div className="relative mb-4 w-full overflow-hidden rounded-md transition-opacity dark:bg-black">
-            <button
-              onClick={() => handleShare(singleImage)}
-              className={
-                "absolute right-4 top-2 h-4 w-4 rounded-full text-white opacity-50 shadow-sm hover:opacity-100"
+    <Suspense>
+      <section className="mx-auto max-w-7xl">
+        <Dialog open={isOpen} onOpenChange={setIsOpen} className="">
+          <DialogDescription>Generated image </DialogDescription>
+          <DialogContent>
+            <DialogTitle className="text-white">
+              {
+                //   The first two tag elements
+                singleImage?.tags.slice(0, 2).join(" ").toUpperCase()
               }
-            >
-              {!isCopied ? <Link /> : <Check />}
-            </button>
-            <picture>
-              <source srcSet={singleImage?.image} type="image/webp" />
-              <img
-                src={singleImage?.image}
-                alt={singleImage?.content}
-                className="w-full object-cover"
-              />
-              <figcaption className="p-4 text-sm text-gray-200 dark:text-gray-400">
-                {singleImage?.content}
-              </figcaption>
-            </picture>
+            </DialogTitle>
+            <div className="relative mb-4 w-full overflow-hidden rounded-md transition-opacity dark:bg-black">
+              <button
+                onClick={() => handleShare(singleImage)}
+                className={
+                  "absolute right-4 top-2 h-4 w-4 rounded-full text-white opacity-50 shadow-sm hover:opacity-100"
+                }
+              >
+                {!isCopied ? <Link /> : <Check />}
+              </button>
+              <picture>
+                <source srcSet={singleImage?.image} type="image/webp" />
+                <img
+                  src={singleImage?.image}
+                  alt={singleImage?.content}
+                  className="w-full object-cover"
+                />
+                <figcaption className="p-4 text-sm text-gray-200 dark:text-gray-400">
+                  {singleImage?.content}
+                </figcaption>
+              </picture>
 
-            <div className="flex flex-wrap gap-2 p-4 pt-0">
-              {singleImage?.tags.map((tag, index) => (
-                <span
+              <div className="flex flex-wrap gap-2 p-4 pt-0">
+                {singleImage?.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center text-xs font-medium text-gray-200 dark:text-white"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <h1 className={`mb-2 text-sm ${isLoading ? "animate-pulse" : ""}`}>
+          Select {minSelectedWords} to {maxSelectedWords} words and create an
+          image 🖼️
+          <br /> 🔀 new words ▶️ generate prompt & image
+        </h1>
+        <div className="flex flex-col md:flex-row">
+          <div className="w-full md:w-1/3">
+            <div className="flex flex-wrap gap-2 py-2">
+              <button
+                type="button"
+                onClick={generateWords}
+                className="text-3xl disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={
+                  input.split(" ").length - 1 >= maxSelectedWords || isLoading
+                }
+              >
+                🔀
+              </button>
+              {randomWords.map((word, index) => (
+                <button
                   key={index}
-                  className="inline-flex items-center text-xs font-medium text-gray-600 dark:text-white"
+                  type="button"
+                  onClick={() => setInput(input.concat(`${word} `))}
+                  disabled={
+                    input.includes(word) ||
+                    input.split(" ").length - 1 >= maxSelectedWords ||
+                    isLoading
+                  }
+                  className="rounded bg-slate-200 px-2 py-1 font-semibold shadow-sm shadow-black hover:shadow-red-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-black"
                 >
-                  {tag}
-                </span>
+                  {word}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2 py-2">
+              <button
+                type="button"
+                className={`text-3xl disabled:cursor-not-allowed disabled:opacity-50 ${imageLoading ? "animate-spin" : ""}`}
+                disabled={
+                  input.split(" ").length - 1 < minSelectedWords || isLoading
+                }
+                onClick={handleSubmit}
+              >
+                ▶️
+              </button>
+              <p className="flex items-center">{input}</p>
+            </div>
+            <div className="min-h-1/2 overflow-y-scroll rounded-md bg-gray-100 text-sm dark:bg-gray-900">
+              {messages.slice(-2).map((message) => (
+                <p
+                  key={message.id}
+                  className={`p-4 ${message.role === "user" ? "text-gray-400" : "text-gray-700 dark:text-white"}`}
+                >
+                  {message.content}
+                </p>
               ))}
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      <h1 className={`mb-2 text-sm ${isLoading ? "animate-pulse" : ""}`}>
-        Select {minSelectedWords} to {maxSelectedWords} words and create an
-        image 🖼️
-        <br /> 🔀 new words ▶️ generate prompt & image
-      </h1>
-      <div className="flex flex-col md:flex-row">
-        <div className="w-full md:w-1/3">
-          <div className="flex flex-wrap gap-2 py-2">
-            <button
-              type="button"
-              onClick={generateWords}
-              className="text-3xl disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={
-                input.split(" ").length - 1 >= maxSelectedWords || isLoading
-              }
-            >
-              🔀
-            </button>
-            {randomWords.map((word, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => setInput(input.concat(`${word} `))}
-                disabled={
-                  input.includes(word) ||
-                  input.split(" ").length - 1 >= maxSelectedWords ||
-                  isLoading
-                }
-                className="rounded bg-slate-200 px-2 py-1 font-semibold shadow-sm shadow-black hover:shadow-red-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-black"
-              >
-                {word}
-              </button>
-            ))}
-          </div>
-          <div className="flex gap-2 py-2">
-            <button
-              type="button"
-              className={`text-3xl disabled:cursor-not-allowed disabled:opacity-50 ${imageLoading ? "animate-spin" : ""}`}
-              disabled={
-                input.split(" ").length - 1 < minSelectedWords || isLoading
-              }
-              onClick={handleSubmit}
-            >
-              ▶️
-            </button>
-            <p className="flex items-center">{input}</p>
-          </div>
-          <div className="min-h-1/2 overflow-y-scroll rounded-md bg-gray-100 text-sm dark:bg-gray-900">
-            {messages.slice(-2).map((message) => (
-              <p
-                key={message.id}
-                className={`p-4 ${message.role === "user" ? "text-gray-400" : "text-gray-700 dark:text-white"}`}
-              >
-                {message.content}
-              </p>
-            ))}
-          </div>
-        </div>
-        {/* Gallery */}
-        <div className="h-[90vh] w-full overflow-y-scroll p-2 md:w-2/3">
-          {gallery
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .map((card, index) => {
-              const { image, content, tags } = card;
-              return (
-                <div
-                  key={index}
-                  className="relative mb-4 w-full overflow-hidden rounded-md shadow-sm shadow-red-900 transition-opacity dark:bg-black"
-                >
-                  <button
-                    onClick={() => handleShare(card)}
-                    className={
-                      "absolute right-4 top-2 h-4 w-4 rounded-full text-white opacity-50 shadow-sm hover:opacity-100"
-                    }
+          {/* Gallery */}
+          <div className="h-[90vh] w-full overflow-y-scroll p-2 md:w-2/3">
+            {gallery
+              .sort((a, b) => new Date(b.date) - new Date(a.date))
+              .map((card, index) => {
+                const { image, content, tags } = card;
+                return (
+                  <div
+                    key={index}
+                    className="relative mb-4 w-full overflow-hidden rounded-md shadow-sm shadow-red-900 transition-opacity dark:bg-black"
                   >
-                    {!isCopied ? <Link /> : <Check />}
-                  </button>
-                  <picture>
-                    <source srcSet={image} type="image/webp" />
-                    <img
-                      src={image}
-                      alt={content}
-                      className="w-full object-cover"
-                    />
-                    <figcaption className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                      {content}
-                    </figcaption>
-                  </picture>
+                    <button
+                      onClick={() => handleShare(card)}
+                      className={
+                        "absolute right-4 top-2 h-4 w-4 rounded-full text-white opacity-50 shadow-sm hover:opacity-100"
+                      }
+                    >
+                      {!isCopied ? <Link /> : <Check />}
+                    </button>
+                    <picture>
+                      <source srcSet={image} type="image/webp" />
+                      <img
+                        src={image}
+                        alt={content}
+                        className="w-full object-cover"
+                      />
+                      <figcaption className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                        {content}
+                      </figcaption>
+                    </picture>
 
-                  <div className="flex flex-wrap gap-2 p-4 pt-0">
-                    {tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center text-xs font-medium text-gray-600 dark:text-white"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                    <div className="flex flex-wrap gap-2 p-4 pt-0">
+                      {tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center text-xs font-medium text-gray-600 dark:text-white"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </Suspense>
   );
 }
