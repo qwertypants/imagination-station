@@ -4,7 +4,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Imagine Station",
+  title: "random pix",
   description: "Create vivid, concise image descriptions from random words",
 };
 
