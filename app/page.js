@@ -79,7 +79,7 @@ export default function Page() {
   // Load image from search params
   useEffect(() => {
     const params = window.location.search;
-    const id = params.split("=")[1];
+    const id = params?.split("=")[1];
 
     if (id) {
       const card = decodeURLToObject(id);
@@ -105,7 +105,7 @@ export default function Page() {
 
   function handleShare(card) {
     const shared = encodeObjectToURL(card);
-    const t = decodeURLToObject(shared);
+    // const t = decodeURLToObject(shared);
     // console.log(shared, t);
     copyToClipboard(shared);
   }
@@ -126,7 +126,7 @@ export default function Page() {
               <button
                 onClick={() => handleShare(singleImage)}
                 className={
-                  "absolute right-4 top-2 h-4 w-4 rounded-full text-white opacity-50 shadow-sm hover:opacity-100"
+                  "absolute right-4 top-2 h-4 w-4 rounded-full text-white opacity-80 shadow-sm hover:opacity-100"
                 }
               >
                 {!isCopied ? <Link /> : <Check />}
